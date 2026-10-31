@@ -1,0 +1,22 @@
+div.content {
+  width: 100%;
+}
+
+div.nav {
+  width: 100%;
+  float: left;
+}
+
+a.nav {
+  float: left;
+}
+
+th,
+td {
+  border: 1px solid black;
+}
+
+td.green
+{
+  color: green;
+}
