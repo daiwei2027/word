@@ -29,36 +29,56 @@
         $start = 0;
 
         if ($_GET["current"]) {
-        	$current = $_GET["current"];
+            $current = $_GET["current"];
             $start = ($_GET["current"] - 1) * 10;
         }
 
-        $sql = 'SELECT * FROM word LIMIT ' . $start . ', 10';
-        $result = $conn->query($sql);
-        echo "<table style='border:1px solid black;'><tr><th>id</th><th>单词</th><th>含义</th><th>日期</th><th></th><th></th></tr>";
-        if ($result->num_rows > 0) {
-            // 输出数据
-            while ($row = $result->fetch_assoc()) {
-                echo "<tr><td>" . $row["id"] . "</td><td>" . $row["word"] . "</td><td class='green'>" . $row["mean"] . "</td><td>" . $row["date"] . "</td><td><a href='beforeModify.php?id=" . $row["id"] . "&current=" . $current . "'>修改单词</a><td></td></td></tr>";
-            }
+        if ($_POST["word"]) {
+            $sql = "SELECT * FROM word WHERE word='" . $_POST["word"] . "'";
+            $result = $conn->query($sql);
+            $row = $result->fetch_row();
+            echo $row[0] . $row[1] . $row[2] . $row[3];
+            echo "<table style='border:1px solid black;'><tr><th>id</th><th>单词</th><th>含义</th><th>日期</th><th></th><th></th></tr>";
+            echo "<tr><td>" . $row[0] . "</td><td>" . $row[1] . "</td><td class='green'>" . $row[2] . "</td><td>" . $row[3] . "</td><td><a href='beforeModify.php?id=" . $row[0] . "&current=" . $current . "'>修改单词</a><td></td></td></tr>";
             echo "</table>";
+            $sql = 'SELECT count(*) FROM word WHERE id < ' . $row[0] . ' ORDER BY id DESC';
+            $result = $conn->query($sql);
+            $row = $result->fetch_row();
+            $items = $row[0];
+            $current = (int)($items / 10 + 1);
         } else {
-            echo "0 结果";
+
+            $sql = 'SELECT * FROM word LIMIT ' . $start . ', 10';
+            $result = $conn->query($sql);
+            echo "<table style='border:1px solid black;'><tr><th>id</th><th>单词</th><th>含义</th><th>日期</th><th></th><th></th></tr>";
+            if ($result->num_rows > 0) {
+                // 输出数据
+                while ($row = $result->fetch_assoc()) {
+                    echo "<tr><td>" . $row["id"] . "</td><td>" . $row["word"] . "</td><td class='green'>" . $row["mean"] . "</td><td>" . $row["date"] . "</td><td><a href='beforeModify.php?id=" . $row["id"] . "&current=" . $current . "'>修改单词</a><td></td></td></tr>";
+                }
+                echo "</table>";
+            } else {
+                echo "0 结果";
+            }
         }
         echo "<a href='newWord.php'>新建单词</a>";
+
         ?>
+        <form action="view.php" method="post">
+            word：<input type="text" name="word"><br>
+            <input type="submit"><br>
+            <input type="reset">
+        </form>
     </div>
     <div id="nav">
         <?php
         // 创建连接
         // Check connection
-        if ($conn->connect_error) {
-            die('连接失败: ' . $conn->connect_error);
-        }
         $sql = 'SELECT count(*) FROM word';
         $result = $conn->query($sql);
         $row = $result->fetch_row();
         $pages = 0;
+        echo $current;
 
         if ($row[0] == 0) {
             $pages = 0;
